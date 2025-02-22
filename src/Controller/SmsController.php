@@ -3,14 +3,16 @@
 namespace App\Controller;
 
 use App\Service\SmsService;
+use App\Message\AlertMessage;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class SmsController extends AbstractController
 {
-    // Route de test des log
+    // Route de test des logs
     #[Route('/test', name: 'app_test')]
     public function index(SmsService $smsService): JsonResponse
     {
@@ -26,8 +28,12 @@ final class SmsController extends AbstractController
      * @param string $insee
      */
     #[Route('/alerter/{insee}', name: 'app_alerter')]
-    public function alerter(string $insee, SmsService $smsService, Connection $connection): JsonResponse
-    {
+    public function alerter(
+        string $insee,
+        SmsService $smsService,
+        Connection $connection,
+        MessageBusInterface $bus
+    ): JsonResponse {
         // SELECT phone FROM recipients WHERE insee = :insee
         $qb = $connection->createQueryBuilder();
         $qb->select('phone')
@@ -45,7 +51,13 @@ final class SmsController extends AbstractController
 
         foreach ($result as $value) {
             // dump($value['phone']);
-            $smsService->sendSms($value['phone'], 'Alerte pluie');
+
+            // écrire un log (sans messenger async)
+            // $smsService->sendSms($value['phone'], 'Alerte pluie');
+
+            // utiliser le bus pour envoyer les messages de manière async
+            $bus->dispatch(new AlertMessage($value['phone'], 'Alerte orage'));
+
             $count++;
         }
 
