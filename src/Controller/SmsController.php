@@ -10,28 +10,45 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class SmsController extends AbstractController
 {
+    // Route de test des log
     #[Route('/test', name: 'app_test')]
     public function index(SmsService $smsService): JsonResponse
     {
-
         $smsService->sendSms('0612345678', 'Alerte pluie');
 
-        return $this->json([
-            'message' => 'Sms envoyé, check log',
-        ]);
+        return $this->json(['message' => 'Sms envoyé, check log']);
     }
 
-    #[Route('/alert/{insee]', name: 'app_alert')]
-    public function alert(string $insee, SmsService $smsService, Connection $connection): JsonResponse
+    /**
+     * Endpoint Alerter 
+     * envoi un sms en fonction du code insee fournit
+     *
+     * @param string $insee
+     */
+    #[Route('/alerter/{insee}', name: 'app_alerter')]
+    public function alerter(string $insee, SmsService $smsService, Connection $connection): JsonResponse
     {
-        // $qb = $connection->createQueryBuilder();
-        // $qb->select('p')
-        // ->andWhere('insee' = '')
+        // SELECT phone FROM recipients WHERE insee = :insee
+        $qb = $connection->createQueryBuilder();
+        $qb->select('phone')
+            ->from('recipients')
+            ->andWhere('insee = :i')
+            ->setParameter('i', $insee);
 
-        $smsService->sendSms('0612345678', 'Alerte pluie');
+        $result = $qb->executeQuery()
+            ->fetchAllAssociative();
 
-        return $this->json([
-            'message' => 'Sms envoyé, check log',
-        ]);
+        // dump($result);
+
+        // compteur d'envoi
+        $count = 0;
+
+        foreach ($result as $value) {
+            // dump($value['phone']);
+            $smsService->sendSms($value['phone'], 'Alerte pluie');
+            $count++;
+        }
+
+        return $this->json(['message' => $count . ' sms envoyés, check logs in /var/log/dev.log'], 200);
     }
 }
