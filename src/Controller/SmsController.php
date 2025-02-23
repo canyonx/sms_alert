@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Exception;
 use App\Service\SmsService;
 use App\Message\AlertMessage;
 use Doctrine\DBAL\Connection;
@@ -12,28 +13,29 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class SmsController extends AbstractController
 {
-    // Route de test des logs
-    #[Route('/test', name: 'app_test')]
-    public function index(SmsService $smsService): JsonResponse
-    {
-        $smsService->sendSms('0612345678', 'Alerte pluie');
-
-        return $this->json(['message' => 'Sms envoyé, check log']);
-    }
-
     /**
      * Endpoint Alerter 
      * envoi un sms en fonction du code insee fournit
+     * Utilisation de apiKey pour sécuriser la route, définie dans .env
      *
      * @param string $insee
+     * @param string $apiKey
      */
-    #[Route('/alerter/{insee}', name: 'app_alerter')]
+    #[Route('/alerter/{insee}/{apiKey}', name: 'app_alerter')]
     public function alerter(
         string $insee,
+        string $apiKey,
         SmsService $smsService,
         Connection $connection,
         MessageBusInterface $bus
     ): JsonResponse {
+        // Check api key
+        if ($apiKey !== $this->getParameter('api_key')) {
+            return $this->json([
+                'message' => 'Try again, you got the wrong api key !'
+            ], 401);
+        }
+
         // SELECT phone FROM recipients WHERE insee = :insee
         $qb = $connection->createQueryBuilder();
         $qb->select('phone, insee')
@@ -57,6 +59,8 @@ final class SmsController extends AbstractController
             $count++;
         }
 
-        return $this->json(['message' => $count . ' sms envoyés, check logs in /var/log/sms_dev-YYYY-mm-dd.log'], 200);
+        return $this->json([
+            'message' => $count . ' sms envoyés, check logs in /var/log/sms_dev-YYYY-mm-dd.log'
+        ], 200);
     }
 }
