@@ -36,7 +36,7 @@ final class SmsController extends AbstractController
     ): JsonResponse {
         // SELECT phone FROM recipients WHERE insee = :insee
         $qb = $connection->createQueryBuilder();
-        $qb->select('phone')
+        $qb->select('phone, insee')
             ->from('recipients')
             ->andWhere('insee = :i')
             ->setParameter('i', $insee);
@@ -44,23 +44,19 @@ final class SmsController extends AbstractController
         $result = $qb->executeQuery()
             ->fetchAllAssociative();
 
-        // dump($result);
-
         // compteur d'envoi
         $count = 0;
 
         foreach ($result as $value) {
-            // dump($value['phone']);
-
             // écrire un log (sans messenger async)
             // $smsService->sendSms($value['phone'], 'Alerte pluie');
 
             // utiliser le bus pour envoyer les messages de manière async
-            $bus->dispatch(new AlertMessage($value['phone'], 'Alerte orage'));
+            $bus->dispatch(new AlertMessage($value['phone'], 'Alerte orage', $value['insee']));
 
             $count++;
         }
 
-        return $this->json(['message' => $count . ' sms envoyés, check logs in /var/log/dev.log'], 200);
+        return $this->json(['message' => $count . ' sms envoyés, check logs in /var/log/sms_dev-YYYY-mm-dd.log'], 200);
     }
 }

@@ -59,7 +59,7 @@ class CsvImportCommand extends Command
                 // enregistrer dans la bdd
                 $this->connection->insert('recipients', [
                     'insee' => $insee,
-                    'phone' => $phone
+                    'phone' => str_replace([' ', '+33'], ['', '0'], $phone)
                 ]);
                 $valid++;
             } else {
@@ -83,6 +83,6 @@ class CsvImportCommand extends Command
     // Valide le numéro de téléphone
     private function checkPhone(string $phone): bool
     {
-        return preg_match('/^(\+33\s?|0)[1-9](\d{8})$/', $phone);
+        return preg_match('/^(?:\+33\s?|0)[67]\d{8}$/', $phone);
     }
 }

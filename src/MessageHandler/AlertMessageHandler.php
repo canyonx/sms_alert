@@ -13,6 +13,6 @@ class AlertMessageHandler
 
     public function __invoke(AlertMessage $message)
     {
-        $this->smsService->sendSms($message->getPhone(), $message->getContent());
+        $this->smsService->sendSms($message->getPhone(), $message->getContent(), $message->getInsee());
     }
 }

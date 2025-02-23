@@ -10,6 +10,17 @@ when@dev:
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
                 channels: ["!event"]
+
+            # SmsAlert logging channel
+            sms_log:
+                type: rotating_file
+                # log to var/log/sms_(environment).log
+                path: "%kernel.logs_dir%/sms_%kernel.environment%.log"
+                # log *all* messages (debug is lowest level)
+                level: info
+                max_files: 10
+                channels: ["sms"]
+
             # uncomment to get logging in your browser
             # you may have to allow bigger header sizes in your Web server configuration
             #firephp:

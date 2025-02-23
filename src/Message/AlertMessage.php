@@ -7,6 +7,7 @@ class AlertMessage
     public function __construct(
         private string $phone,
         private string $content,
+        private string $insee = '',
     ) {}
 
     public function getPhone(): string
@@ -17,5 +18,10 @@ class AlertMessage
     public function getContent(): string
     {
         return $this->content;
+    }
+
+    public function getInsee(): string
+    {
+        return $this->insee;
     }
 }
