@@ -40,6 +40,15 @@ class CsvImportCommand extends Command
             return Command::FAILURE;
         }
 
+        // Vérifier que le fichier est un .csv (extension + mime_type)
+        if (
+            pathinfo($file, PATHINFO_EXTENSION) !== 'csv' ||
+            mime_content_type($file) !== 'text/csv'
+        ) {
+            $io->error(sprintf("Le fichier $file n'est pas un .csv."));
+            return Command::FAILURE;
+        }
+
         // lecture du fichier
         $content = fopen($file, 'r');
 
@@ -56,10 +65,12 @@ class CsvImportCommand extends Command
 
             // Verifier le numéro insee et phone 
             if ($this->checkInsee($insee) && $this->checkPhone($phone)) {
+                // formater le numéro 
+                $phone =  str_replace([' ', '+33'], ['', '0'], $phone);
                 // enregistrer dans la bdd
                 $this->connection->insert('recipients', [
                     'insee' => $insee,
-                    'phone' => str_replace([' ', '+33'], ['', '0'], $phone)
+                    'phone' => $phone
                 ]);
                 $valid++;
             } else {
