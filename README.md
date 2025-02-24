@@ -1,7 +1,9 @@
 ## SMS ALERT
-Simulation d'envoi de SMS, visibles dans les logs
-les destinataires sont une liste de numéros de téléphones associés à un code insee
-disponible sous forme d'un fichier .csv 
+Application backend qui permet d’importer des destinataires depuis un 
+fichier CSV (docs.list.csv) et d’envoyer des alertes par SMS à des particuliers. 
+Pour simplifier l’envoi, l’API SMS sera simulée via un service qui se contentera 
+de logger chaque envoi (var/log/sms_dev*.log). 
+La file d’envoi sera gérée par Symfony Messenger.
 
 ## NECESSAIRES
 - Docker, docker compose
