@@ -12,6 +12,9 @@ La file d’envoi sera gérée par Symfony Messenger.
 - Symfony 6.4, php8.4, Apache, Composer, Symfony CLI, Adminer, Git
 
 ## INSTALL
+- Construction de l'image docker sans utiliser le cache  
+`docker compose build --no-cache`
+
 - Lancement de Docker  
 `docker compose up -d`
 
@@ -33,10 +36,12 @@ OU
 `docker exec -it sms_alert php bin/console messenger:consume async -vv`
 
 - Consulter les log dans /var/log/sms_dev-YYYY-mm-dd.log (adapter la date)  
-`cat /var/log/sms_dev-*.log`  
+`cat ./var/log/sms_dev-*.log`  
 ou en temps réel  
 `tail -f var/log/sms_dev-*.log | grep -a --color=auto "INFO"`
 
+- Destruction de l'image docker et suppression des volumes  
+`docker compose down -v`
 
 ## ADMINER
 http://localhost:8081  
