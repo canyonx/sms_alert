@@ -1,4 +1,4 @@
-## SMS ALERT
+# SMS ALERT
 Application backend qui permet d’importer des destinataires depuis un 
 fichier CSV (docs.list.csv) et d’envoyer des alertes par SMS à des particuliers. 
 Pour simplifier l’envoi, l’API SMS sera simulée via un service qui se contentera 
@@ -13,36 +13,38 @@ La file d’envoi sera gérée par Symfony Messenger.
 
 ## INSTALL
 - Lancement de Docker 
-docker compose up -d
+`docker compose up -d`
 
 - Installation des dépendances
-docker exec -it sms_alert composer install
+`docker exec -it sms_alert composer install`
 
 - Migration Doelia
-symfony console sql-migrations:execute
+`symfony console sql-migrations:execute`
 
 - Importer un fichier .csv 
-symfony console app:csv-import ./docs/list.csv
+`symfony console app:csv-import ./docs/list.csv`
 
-- Tester l'endpoint alerter/insee/apiKey
-curl http://localhost:9000/alerter/75056/1234567890
+- Tester l'endpoint http://localhost:9000/alerter/insee/apiKey 
+Depuis un navigateur web 
+OU
+`curl http://localhost:9000/alerter/75056/1234567890`
 
 - Lancer le worker messenger pour envoyer les messages (Ctrl+C pour stopper)
-docker exec -it sms_alert php bin/console messenger:consume async -vv
+`docker exec -it sms_alert php bin/console messenger:consume async -vv`
 
 - Consulter les log dans /var/log/sms_dev-YYYY-mm-dd.log (adapter la date)
-cat /var/log/sms_dev-*.log
+`cat /var/log/sms_dev-*.log`
 ou en temps réel
-tail -f var/log/sms_dev-*.log | grep -a --color=auto "INFO"
+`tail -f var/log/sms_dev-*.log | grep -a --color=auto "INFO"`
 
 
 ## ADMINER
 http://localhost:8081
-sms_alert_db
-app
-app
-app
-
+Système	: PostgreSQL
+Serveur	: sms_alert_db
+Utilisateur	: app
+Mot de passe : app
+Base de données	: app	
 
 ## DEBUG
 - Conexion au conteneur
